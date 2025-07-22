@@ -3,14 +3,14 @@ token: "XXXXXXXXXXXXXXXXXXXXXXXX"         # Lichess OAuth2 Token.
 engines:
   standard:                               # Engine used for standard chess and when no suitable special engine is configured.
     dir: "./engines"                      # Directory containing the engine.
-    name: "stockfish.exe"                 # Binary name of the engine to use.
+    name: "stockfish"                     # Binary name of the engine to use.
     ponder: true                          # Think on opponent's time.
     silence_stderr: false                 # Suppresses stderr output.
-    move_overhead_multiplier: 20.0        # Increase if your bot flags games too often. Default move overhead is 1 second per 1 minute initital time.
+    move_overhead_multiplier: 1.0         # Increase if your bot flags games too often. Default move overhead is 1 second per 1 minute initital time.
     uci_options:                          # Arbitrary UCI options passed to the engine. (Commenting allowed)
-      Threads: 8                          # Max CPU threads the engine can use.
-      Hash: 4096                          # Max memory (in megabytes) the engine can allocate.
-      Move Overhead: 100                  # Increase if your bot flags games too often.
+      Threads: 6                          # Max CPU threads the engine can use.
+      Hash: 2048                          # Max memory (in megabytes) the engine can allocate.
+      Move Overhead: 285                  # Increase if your bot flags games too often.
     limits:                               # Limits that end the move calculation early.
 #     time: 2.5                           # Max time per move in seconds.
 #     depth: 100                          # Max depth per move.
