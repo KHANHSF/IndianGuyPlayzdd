@@ -6,10 +6,10 @@ engines:
     name: "stockfish"                     # Binary name of the engine to use.
     ponder: true                          # Think on opponent's time.
     silence_stderr: false                 # Suppresses stderr output.
-    move_overhead_multiplier: 1.0         # Increase if your bot flags games too often. Default move overhead is 1 second per 1 minute initital time.
+    move_overhead_multiplier: 3.0        # Increase if your bot flags games too often. Default move overhead is 1 second per 1 minute initital time.
     uci_options:                          # Arbitrary UCI options passed to the engine. (Commenting allowed)
-      Threads: 4                          # Max CPU threads the engine can use.
-      Hash: 4096                          # Max memory (in megabytes) the engine can allocate.
+      Threads: 8                          # Max CPU threads the engine can use.
+      Hash: 1024                          # Max memory (in megabytes) the engine can allocate.
       Move Overhead: 225                  # Increase if your bot flags games too often.
     limits:                               # Limits that end the move calculation early.
 #     time: 2.5                           # Max time per move in seconds.
