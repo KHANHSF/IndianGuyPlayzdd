@@ -1,5 +1,6 @@
 name: Run bot
 
+# Controls when the workflow will run
 on:
   workflow_dispatch:
   push:
@@ -8,58 +9,35 @@ on:
     paths:
       - "user_interface.py"
   schedule:
-    - cron: "1 */5 * * *"  # Every 5 hours at minute 1
+    - cron: "1 */5 * * *"
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
-    concurrency:
-      group: bot-run
-      cancel-in-progress: false  # Keep this false for fastest restarts
-
-    runs-on: ubuntu-22.04
-    timeout-minutes: 355  # Just under 6-hour GitHub limit
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Install GitHub CLI
-        run: sudo apt-get update && sudo apt-get install -y gh
+      - name: Python Dependency Installation
+        uses: py-actions/py-dependency-install@v4.0.0
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+      - name: Injection For my Repo
+        run: sed -i "s/TokenTimeIsBackBuddyss/${{ secrets.LICHESS_KEY }}/g" config.yml
 
-      - name: Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Install Python dependencies
-        run: pip install -r requirements.txt
-
-      - name: Inject Secret Token
-        run: sed -i "s/XXXXXXXXXXXXXXXXXXXXXXXX/${{ secrets.LICHESS_KEY }}/g" config.yml
-
-      - name: Make Stockfish Executable
-        run: | 
-             chmod +x ./engines/stockfish
-      - name: Run Bot
+      - name: Download and Extract Stockfish
         run: |
-          echo "Starting bot..."
-          python3 -u user_interface.py "matchmaking" &
-          PID=$!
-          
-          # Auto-exit after 350 minutes (so restart runs without overlap)
-          ( sleep 21000 && echo "Time up. Killing bot..." && kill -SIGTERM $PID ) &
-          
-          wait $PID
-          echo "Bot ended cleanly."
-      - name: 🔁 Self-Restart (Fire-and-Forget)
-        if: always()
-        run: gh workflow run bot.yml
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          mkdir -p ./engines
+          wget -O stockfish.zip http://abrok.eu/stockfish/latest/linux/stockfish_x64_avx2.zip
+          unzip stockfish.zip -d ./engines
+          ls -l ./engines
+          mv ./engines/stockfish_*_x64_avx2 ./engines/stockfish-ubuntu-x86-64-avx2
+          chmod +x ./engines/stockfish-ubuntu-x86-64-avx2
+          rm stockfish.zip
+
+      # Run the bot
+      - name: Running bot
+        run: python3 user_interface.py "matchmaking"
